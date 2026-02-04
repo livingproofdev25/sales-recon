@@ -1,0 +1,53 @@
+{
+  "description": "Sales Recon automation hooks for lead detection, auto-enrichment, session briefing, and export validation",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Analyze the user's message for lead research triggers. Check if the message contains keywords like 'research', 'find info on', 'look up', 'investigate', 'who is', 'tell me about', or 'gather intel on' followed by a person name or company name.\n\nIf a research trigger is detected:\n- Extract the target name (person or company)\n- Return a systemMessage suggesting: 'Detected potential research target: [name]. Would you like me to gather intelligence using the sales-recon plugin?'\n\nIf no research trigger is detected, return nothing.\n\nUser message: $USER_PROMPT",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check if the tool operation modified a file that appears to be a lead list or prospect data file. Look for:\n- File names containing: leads, prospects, contacts, crm, customers, outreach\n- File extensions: .csv, .json, .xlsx\n- Content patterns: columns like name, email, company, phone, title\n\nTool result: $TOOL_RESULT\nFile path from input: $TOOL_INPUT\n\nIf this appears to be a lead data file that was modified:\n- Return a systemMessage: 'Lead data file detected. Would you like me to enrich any new or incomplete entries using the data-enricher agent?'\n\nIf not a lead file, return nothing.",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/session-briefing.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check if this Write operation is exporting intelligence data. Look for:\n- File names containing: export, intel, leads, enriched, crm-import\n- File formats: .csv, .json for data export\n- Content containing: email, phone, linkedin, dm_score, confidence\n\nTool input: $TOOL_INPUT\n\nIf this is an intelligence data export:\n1. Verify data quality - check for:\n   - Email confidence scores (warn if any below 50%)\n   - Missing critical fields (email, name, company)\n   - Stale data indicators\n2. Return a systemMessage with data quality summary:\n   - Total records\n   - Records with high-confidence emails (>80%)\n   - Records missing critical data\n   - Recommendation (proceed/review first)\n\nIf not an export operation, approve without message.",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

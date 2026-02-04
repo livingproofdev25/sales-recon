@@ -1,0 +1,18 @@
+{
+  "name": "sales-recon",
+  "version": "1.0.0",
+  "description": "FBI-level lead intelligence gathering plugin. Real-time personal and business intelligence from multiple sources including Hunter.io, Google Maps, SerpAPI, and web scraping. Solves lead data decay problems.",
+  "author": {
+    "name": "xai3x-automate",
+    "email": "dev@xai3x.com"
+  },
+  "keywords": [
+    "lead-generation",
+    "sales-intelligence",
+    "osint",
+    "business-intelligence",
+    "prospecting",
+    "data-enrichment"
+  ],
+  "license": "MIT"
+}
