@@ -1,6 +1,6 @@
 # Sales Recon
 
-FBI-level lead intelligence gathering for Claude Code. Solves lead data decay problems with real-time, multi-source intelligence gathering.
+ lead intelligence gathering for Claude Code. Solves lead data decay problems with real-time, multi-source intelligence gathering.
 
 ## Features
 
