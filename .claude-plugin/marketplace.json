@@ -1,0 +1,15 @@
+{
+  "name": "prospector-local",
+  "description": "Local marketplace for prospector plugin",
+  "owner": {
+    "name": "xai3x-automate",
+    "email": "dev@xai3x.com"
+  },
+  "plugins": [
+    {
+      "name": "prospector",
+      "description": "B2B sales intelligence and buying intent platform",
+      "source": "./"
+    }
+  ]
+}

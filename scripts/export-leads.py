@@ -46,7 +46,7 @@ def export_salesforce(data: dict) -> str:
             '',  # Website (from company data if available)
             person.get('linkedin_url', ''),
             person.get('twitter', ''),
-            'Sales Recon',
+            'Prospector',
             f"DM Score: {dm_score}/10. {', '.join(person.get('data_sources', []))}",
             rating
         ])
@@ -93,7 +93,7 @@ def export_hubspot(data: dict) -> str:
             state,
             lead_status,
             'lead',
-            'Sales Recon'
+            'Prospector'
         ])
 
     return output.getvalue()

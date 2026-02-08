@@ -1,6 +1,6 @@
 #!/bin/bash
-# Session Briefing Hook for Sales Recon
-# Runs at session start to provide context about available intelligence tools
+# Session Briefing Hook for Prospector
+# Runs at session start to show available research commands
 
 set -euo pipefail
 
@@ -20,17 +20,17 @@ if [ -z "${SERPAPI_KEY:-}" ]; then
 fi
 
 # Build the briefing message
-briefing="Sales Recon plugin loaded. "
+briefing="Prospector plugin loaded. "
 
 if [ ${#missing_keys[@]} -gt 0 ]; then
-  briefing+="⚠️ Missing API keys: ${missing_keys[*]}. "
+  briefing+="Missing API keys: ${missing_keys[*]}. "
   briefing+="Set these environment variables for full functionality. "
 else
-  briefing+="✓ All API keys configured. "
+  briefing+="All API keys configured. "
 fi
 
-briefing+="Available commands: /recon-person, /recon-company, /recon-batch, /recon-export. "
-briefing+="Or use natural language with trigger words: 'research', 'find info on', 'look up'."
+briefing+="Commands: /research-contact, /research-company, /enrich-batch, /export-leads, /set-icp, /check-signals, /check-competitors, /craft-outreach. "
+briefing+="Or use natural language: 'research [name]', 'look up [company]', 'check signals for [company]'."
 
 # Output as JSON for Claude
 cat << EOF

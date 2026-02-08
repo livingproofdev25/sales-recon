@@ -1,5 +1,5 @@
 ---
-name: recon-batch
+name: enrich-batch
 description: Bulk enrich leads from CSV file (10-50 records)
 argument-hint: [csv-file-path]
 allowed-tools: Read, Write, Grep, Glob, Bash, WebSearch, WebFetch, Task
@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Grep, Glob, Bash, WebSearch, WebFetch, Task
 
 Process batch lead enrichment from CSV file: $ARGUMENTS
 
-Use the OSINT Tradecraft skill for methodology guidance.
+Use the Prospect Research skill for methodology guidance.
 
 ## Batch Processing Workflow
 
@@ -39,7 +39,7 @@ Jane Doe,Tech Inc,New York,CEO
 
 Determine record type based on columns:
 - **Person batch**: Has name columns, enrich with contact/professional info
-- **Company batch**: Has company columns without names, enrich with org intel
+- **Company batch**: Has company columns without names, enrich with org profile
 - **Mixed batch**: Has both, enrich persons with company context
 
 ### Step 3: Rate Limit Planning
@@ -79,14 +79,14 @@ Create enriched CSV with additional columns:
 
 **For Person Batches**:
 ```csv
-name,company,location,title,email,email_confidence,linkedin_url,phone,twitter,dm_score,last_updated
-John Smith,Acme Corp,San Francisco,VP Engineering,john@acme.com,95,linkedin.com/in/jsmith,+1-555-1234,@jsmith,8,2026-02-04
+name,company,location,title,email,email_confidence,linkedin_url,phone,twitter,dm_score,icp_score,icp_match,last_updated
+John Smith,Acme Corp,San Francisco,VP Engineering,john@acme.com,95,linkedin.com/in/jsmith,+1-555-1234,@jsmith,8,85,Strong,2026-02-08
 ```
 
 **For Company Batches**:
 ```csv
-company,location,website,phone,employee_count,industry,ceo_name,ceo_email,decision_makers,last_updated
-Acme Corp,San Francisco,acme.com,+1-555-0000,250-500,Software,Jane CEO,jane@acme.com,"VP Sales: sarah@acme.com",2026-02-04
+company,location,website,phone,employee_count,industry,ceo_name,ceo_email,decision_makers,icp_score,icp_match,last_updated
+Acme Corp,San Francisco,acme.com,+1-555-0000,250-500,Software,Jane CEO,jane@acme.com,"VP Sales: sarah@acme.com",78,Good,2026-02-08
 ```
 
 ### Step 6: Generate Summary Report
@@ -112,7 +112,27 @@ Acme Corp,San Francisco,acme.com,+1-555-0000,250-500,Software,Jane CEO,jane@acme
 | LinkedIn | [N] | [%] |
 | Title | [N] | [%] |
 
-## High-Value Leads (DM Score ≥7)
+## Priority Queue (by Timing Score)
+
+### HOT — Immediate Outreach
+| Name | Company | Timing | Top Signal |
+|------|---------|--------|------------|
+| [Name] | [Company] | [X] | [Signal] |
+
+### WARM — Active Campaign
+| Name | Company | Timing | Top Signal |
+|------|---------|--------|------------|
+| [Name] | [Company] | [X] | [Signal] |
+
+### NURTURE — Monitor
+| Name | Company | Timing | Top Signal |
+|------|---------|--------|------------|
+| [Name] | [Company] | [X] | [Signal] |
+
+### NOT READY — Low Priority
+[Count] leads with insufficient signals
+
+## High-Value Leads (DM Score >= 7)
 1. [Name] at [Company] - Score: [X]
 2. [Name] at [Company] - Score: [X]
 3. [Name] at [Company] - Score: [X]
@@ -132,6 +152,6 @@ Acme Corp,San Francisco,acme.com,+1-555-0000,250-500,Software,Jane CEO,jane@acme
 Write enriched CSV to: `[original-filename]-enriched.csv`
 
 Ask user if they want:
-1. Full intelligence reports for high-value leads
+1. Full profiles for high-value leads
 2. Export to different format (JSON)
 3. Filter/sort results

@@ -1,14 +1,18 @@
-# Sales Recon
+# Prospector
 
- lead intelligence gathering for Claude Code. Solves lead data decay problems with real-time, multi-source intelligence gathering.
+B2B sales intelligence and buying intent platform for Claude Code. Transforms prospect names into actionable profiles with ICP scoring, buying signals, competitive analysis, and personalized outreach.
 
 ## Features
 
-- **Person Intelligence**: Deep profiles including contact info, work history, social media, decision-maker scoring
-- **Business Intelligence**: Full org intel with employee rosters, org charts, decision-makers, news, competitors
-- **Batch Processing**: Enrich up to 50 leads at once from CSV files
-- **Auto-Detection**: Keyword-triggered intel gathering ("research", "find info on", "look up")
-- **Export**: JSON and CSV exports for CRM integration
+- **Contact Research**: Deep professional profiles including contact info, work history, social presence, decision-maker scoring
+- **Company Research**: Full company profiles with leadership rosters, org charts, decision-makers, news, competitors
+- **Batch Enrichment**: Enrich up to 50 leads at once from CSV files
+- **ICP Scoring**: Define your Ideal Customer Profile and automatically score every prospect
+- **Buying Intent Signals**: Detect hiring, funding, leadership changes, tech migrations, and competitor dissatisfaction
+- **Competitive Displacement**: Identify switching triggers and generate displacement talking points
+- **Outreach Generation**: Personalized multi-channel outreach with signal-led, problem-led, and connection-led variants
+- **Auto-Detection**: Keyword-triggered research ("research", "find info on", "look up", "profile")
+- **Export**: JSON and CSV exports for CRM integration (Salesforce, HubSpot, Pipedrive)
 
 ## Installation
 
@@ -39,31 +43,56 @@ Get API keys from:
 
 | Command | Description |
 |---------|-------------|
-| `/recon-person "Name" [location]` | Deep profile on an individual |
-| `/recon-company "Company"` | Full organization intelligence |
-| `/recon-batch file.csv` | Bulk enrich leads from CSV |
-| `/recon-export [json\|csv]` | Export last results |
+| `/research-contact "Name" [company]` | Build a professional profile on an individual |
+| `/research-company "Company"` | Full company profile with leadership and decision-makers |
+| `/enrich-batch file.csv` | Bulk enrich leads from CSV |
+| `/export-leads [json\|csv]` | Export results for CRM import |
+| `/set-icp` | Define your Ideal Customer Profile for scoring |
+| `/check-signals "Company"` | Detect buying intent signals |
+| `/check-competitors "Company"` | Competitive displacement analysis |
+| `/craft-outreach "Name"` | Generate personalized outreach messages |
 
 ## Usage Examples
 
 ```
-/recon-person "John Smith" San Francisco
-/recon-company "Acme Corp"
-/recon-batch leads.csv
-/recon-export csv
+/research-contact "John Smith" Acme Corp
+/research-company "Stripe"
+/enrich-batch leads.csv
+/export-leads csv
+/set-icp
+/check-signals "Databricks"
+/check-competitors "Snowflake"
+/craft-outreach "Sarah Chen"
 ```
 
-Or use natural language with trigger words:
+Or use natural language:
 - "Research the CEO of Tesla"
 - "Find info on Jane Doe at Microsoft"
 - "Look up Stripe's engineering team"
+- "Check buying signals for Databricks"
 
 ## Data Sources
 
 - **Hunter.io**: Email discovery, domain search, email verification
 - **Google Maps/Places**: Business verification, locations, reviews
-- **SerpAPI**: Web search, news, social profiles
-- **Web Scraping**: LinkedIn (public), company websites, press releases
+- **SerpAPI**: Web search, news, social profiles, job postings, reviews
+- **Web Research**: LinkedIn (public), company websites, press releases
+
+## Scoring Systems
+
+### Decision-Maker Score (1-10)
+Based on title seniority, budget authority, tenure, and purchasing history.
+
+### ICP Score (0-100)
+Weighted composite: `ICP = (company_fit * 0.6) + (contact_fit * 0.4)`
+Match levels: Strong (80+), Good (60-79), Moderate (40-59), Poor (<40)
+
+### Buying Intent Score (0-100)
+Five signal types: Hiring (30%), Funding (25%), Leadership changes (20%), Tech stack changes (15%), Competitor dissatisfaction (10%)
+Levels: HOT (80+), WARM (60-79), NURTURE (40-59), NOT READY (<40)
+
+### Priority Timing
+`Timing = (ICP * 0.4) + (Intent * 0.6)` with ICP gating (ICP < 50 caps at NURTURE)
 
 ## Hooks (Automation)
 
@@ -71,25 +100,27 @@ Or use natural language with trigger words:
 |------|---------|----------|
 | Lead Detector | Keywords in messages | Offers to research mentioned names |
 | Auto-Enricher | Edit lead CSV files | Offers to enrich new entries |
-| Session Briefing | Session start | Shows pending research tasks |
+| Session Briefing | Session start | Shows available commands |
 | Export Validator | Export operations | Validates data quality |
 
 ## Output Format
 
-### Person Intelligence Report
+### Contact Profile
 - Contact: Email, phone, LinkedIn, Twitter
 - Professional: Current role, company, work history, education
-- Social: Social media profiles, publications, speaking engagements
+- Presence: Social media profiles, publications, speaking engagements
 - Decision-Maker Score: 1-10 rating based on title and influence indicators
+- ICP Score: How well they match your ideal customer profile
+- Outreach Recommendations: Best channel, personalization hooks
 
-### Company Intelligence Report
+### Company Profile
 - Overview: Name, industry, size, revenue estimate, founded
 - Location: HQ address, additional offices
 - Leadership: Key executives with contact info
-- Employees: Full roster with roles and departments
 - Decision-Makers: Identified buyers with authority levels
-- News: Recent press, funding, product launches
-- Competitors: Similar companies in space
+- Buying Signals: Detected intent indicators with freshness
+- Competitive Landscape: Current vendors, dissatisfaction signals
+- Priority & Timing: When to reach out and why
 
 ## License
 

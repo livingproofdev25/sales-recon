@@ -1,6 +1,6 @@
 # Data Sources Reference
 
-Complete API documentation and rate limits for sales intelligence gathering.
+Complete API documentation and rate limits for prospect research.
 
 ## Hunter.io API
 
@@ -269,7 +269,7 @@ Response:
       "title": "John Smith - VP Engineering - Acme Corp | LinkedIn",
       "link": "https://linkedin.com/in/johnsmith",
       "snippet": "VP of Engineering at Acme Corp. San Francisco Bay Area.",
-      "displayed_link": "linkedin.com › johnsmith"
+      "displayed_link": "linkedin.com > johnsmith"
     }
   ],
   "search_metadata": {

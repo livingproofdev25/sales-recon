@@ -1,19 +1,19 @@
-# Web Scraping Patterns for Sales Intelligence
+# Web Research Patterns for Sales Prospecting
 
-Techniques for extracting lead data from web sources when APIs are unavailable.
+Techniques for finding prospect data from web sources when APIs are unavailable.
 
 ## Important Disclaimer
 
-Web scraping should be used responsibly:
+Web research should be conducted responsibly:
 - Respect robots.txt directives
 - Don't overload servers with requests
-- Check terms of service before scraping
+- Check terms of service before accessing data
 - Prefer official APIs when available
-- Store only publicly available information
+- Use only publicly available information
 
-## LinkedIn Scraping Patterns
+## LinkedIn Research Patterns
 
-LinkedIn heavily restricts scraping. Use these approaches instead:
+LinkedIn heavily restricts automated access. Use these approaches instead:
 
 ### Alternative: SerpAPI LinkedIn Search
 ```python
@@ -42,7 +42,7 @@ LinkedIn public profiles show limited info:
 
 ## Company Website Patterns
 
-### Team Page Extraction
+### Team Page Discovery
 
 Common team page URL patterns:
 ```
@@ -101,7 +101,7 @@ Company footers often contain:
 
 ---
 
-## News and Press Release Scraping
+## News and Press Release Research
 
 ### Press Release Sources
 
@@ -143,7 +143,7 @@ Key data to extract:
 
 ## Job Posting Analysis
 
-### Job Board Patterns
+### Job Board Sources
 
 Major sources:
 - Company careers page (/careers, /jobs)
@@ -153,7 +153,7 @@ Major sources:
 - Greenhouse
 - Lever
 
-### Intelligence from Job Postings
+### Insights from Job Postings
 
 **Organizational clues:**
 - Department names and structure
@@ -228,7 +228,7 @@ def respectful_request(url):
 
 ### Caching Results
 ```python
-# Cache scraped data to avoid repeat requests
+# Cache research data to avoid repeat requests
 cache = {}
 
 def get_with_cache(url, ttl_hours=24):
@@ -309,15 +309,15 @@ def extract_names_from_team_page(html):
 
 ### Don't:
 - Bypass authentication or paywalls
-- Scrape private or logged-in-only content
+- Access private or logged-in-only content
 - Overwhelm servers with rapid requests
 - Store sensitive personal data unnecessarily
 - Violate terms of service
-- Scrape data for spam or harassment
+- Use data for spam or harassment
 
 ### GDPR/Privacy Compliance
 - Only collect business-related data
 - Provide opt-out mechanism
-- Don't scrape personal addresses, personal phone numbers
+- Don't collect personal addresses or personal phone numbers
 - Document data sources for audit trail
 - Implement data retention policies

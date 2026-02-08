@@ -1,15 +1,15 @@
 ---
-name: recon-company
-description: Full organization intelligence with employee roster and decision-makers
+name: research-company
+description: Full company profile with leadership team and decision-makers
 argument-hint: "Company Name" [location]
 allowed-tools: Read, Write, Grep, Glob, Bash, WebSearch, WebFetch, Task
 ---
 
-Gather comprehensive organization intelligence on: $ARGUMENTS
+Build a comprehensive company profile on: $ARGUMENTS
 
-Use the OSINT Tradecraft skill for methodology guidance.
+Use the Prospect Research skill for methodology guidance.
 
-## Intelligence Gathering Process
+## Research Process
 
 ### Step 1: Parse Input
 Extract from "$ARGUMENTS":
@@ -85,7 +85,7 @@ Identify key buyers:
 - C-level stakeholders
 - Typical buying committee structure
 
-### Step 7: Competitive Intelligence
+### Step 7: Market Position
 
 Research:
 - Direct competitors (same product/service)
@@ -93,12 +93,29 @@ Research:
 - Job postings (growth indicators)
 - Customer reviews (pain points)
 
-### Step 8: Generate Report
+### Step 8: Basic Signal Check
 
-Output a comprehensive Company Intelligence Report:
+Run a quick buying intent scan (abbreviated version of `/check-signals`):
+- Search for recent funding news (last 6 months)
+- Check for leadership changes
+- Look for relevant hiring activity
+- Summarize top 1-3 signals found
+- Include intent score if enough signals detected
+
+### Step 9: ICP Scoring (if configured)
+
+Check if `.prospector/icp.json` exists:
+- If found, calculate company-level ICP score
+- Score: industry match + size match + tech stack match
+- Classify: Strong (80+), Good (60-79), Moderate (40-59), Poor (<40)
+- If not configured, skip and add note: "Run /set-icp to enable ICP scoring"
+
+### Step 9: Generate Report
+
+Output a comprehensive Company Profile:
 
 ```markdown
-# Company Intelligence: [Company Name]
+# Company Profile: [Company Name]
 
 ## Overview
 - **Industry**: [Industry] (SIC/NAICS: [code])
@@ -147,13 +164,47 @@ Output a comprehensive Company Intelligence Report:
 | [Competitor 1] | [Size] | [Focus] |
 | [Competitor 2] | [Size] | [Focus] |
 
+## Competitive Landscape (Brief)
+- **Known vendors**: [List detected tools/vendors from job posts and web]
+- **Displacement opportunity**: [High/Medium/Low/Unknown]
+- **Key pain point** (if detected): [Brief description]
+> Run `/check-competitors "[Company]"` for full displacement analysis
+
+## Buying Signals
+| Signal | Score | Finding |
+|--------|-------|---------|
+| [Type] | [X]/100 | [Brief description] |
+| [Type] | [X]/100 | [Brief description] |
+
+**Intent Score**: [X]/100 — [HOT/WARM/NURTURE/NOT READY]
+> Run `/check-signals "[Company]"` for full signal analysis
+
 ## Tech Stack
 [List detected technologies from website]
+
+## ICP Fit: [X]/100 ([Strong/Good/Moderate/Poor] Match)
+- Industry: [X]/100
+- Size: [X]/100
+- Tech stack: [X]/100
 
 ## Growth Indicators
 - Open positions: [Count by department]
 - Recent hires: [Notable additions]
 - Expansion signs: [New offices, products]
+
+## Priority & Timing
+
+**Timing Score**: [X]/100 — [Priority Level]
+- Formula: `Timing = (ICP * 0.4) + (Intent * 0.6)`
+- ICP Gate: [Applied/Not applied] (ICP < 50 caps at NURTURE)
+
+**Recommended Action**: [Specific next step]
+**Timeline**: [Immediate / This week / This month / Next quarter]
+
+### Signal Timeline
+1. [Date]: [Event description]
+2. [Date]: [Event description]
+3. [Date]: [Event description]
 
 ## Data Sources
 - Google Maps: [Verified address/phone]
@@ -167,4 +218,4 @@ Output a comprehensive Company Intelligence Report:
 - Notes: [Any data quality concerns]
 ```
 
-Store results for potential `/recon-export` later.
+Store results for potential `/export-leads` later.

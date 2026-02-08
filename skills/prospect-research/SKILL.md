@@ -1,12 +1,12 @@
 ---
-name: OSINT Tradecraft
-description: This skill should be used when the user asks to "research a person", "find info on", "look up", "gather intelligence on", "investigate", "find contact info", "find email", "enrich leads", "identify decision makers", "research a company", "build prospect list", or needs guidance on open-source intelligence gathering for sales prospecting and lead generation.
-version: 1.0.0
+name: Prospect Research
+description: This skill should be used when the user asks to "research a person", "find info on", "look up", "profile a prospect", "find contact info", "find email", "enrich leads", "identify decision makers", "research a company", "build prospect list", or needs guidance on professional research methods for sales prospecting and lead generation.
+version: 2.0.0
 ---
 
-# OSINT Tradecraft for Sales Intelligence
+# Prospect Research for Sales
 
-Comprehensive methodology for gathering personal and business intelligence using open-source techniques. This skill transforms raw names and company identifiers into actionable sales intelligence.
+Comprehensive methodology for building professional profiles and company assessments using public data sources. This skill transforms raw names and company identifiers into actionable sales profiles.
 
 ## Core Principles
 
@@ -30,7 +30,7 @@ Query sources in order of reliability and cost-effectiveness:
    - Social media presence
    - Publications and speaking engagements
 
-4. **Direct web scraping** (supplementary)
+4. **Direct web research** (supplementary)
    - Company websites for team pages
    - Press releases for executive changes
    - Job postings for org structure clues
@@ -44,7 +44,7 @@ Never trust single-source data. Cross-reference using:
 - **Title validation**: LinkedIn + company website agreement
 - **Recency check**: Prefer data updated within 6 months
 
-## Person Intelligence Workflow
+## Contact Research Workflow
 
 ### Step 1: Initial Search
 
@@ -61,7 +61,7 @@ Use Hunter.io's email finder:
 Domain: company.com
 First name: John
 Last name: Smith
-→ john.smith@company.com (95% confidence)
+-> john.smith@company.com (95% confidence)
 ```
 
 Verify discovered emails before storing.
@@ -75,7 +75,7 @@ Gather from SerpAPI LinkedIn search:
 - Skills and endorsements
 - Mutual connections
 
-### Step 4: Social Presence
+### Step 4: Professional Presence
 
 Search for additional profiles:
 - Twitter/X (industry thought leadership)
@@ -97,7 +97,7 @@ Calculate a 1-10 decision-maker score based on:
 | 5+ years at company | +1 |
 | Previous purchasing roles | +1 |
 
-## Company Intelligence Workflow
+## Company Research Workflow
 
 ### Step 1: Basic Verification
 
@@ -127,7 +127,7 @@ Build executive roster:
 
 ### Step 4: Employee Roster
 
-For full org intel:
+For full org analysis:
 1. Hunter.io domain search (returns all known emails)
 2. SerpAPI LinkedIn company employees search
 3. Categorize by department and seniority
@@ -141,9 +141,9 @@ Identify buyers with authority:
 - Map C-level stakeholders
 - Document the typical buying committee structure
 
-### Step 6: Competitive Intelligence
+### Step 6: Market Position
 
-Research market position:
+Research competitive landscape:
 - Direct competitors (same product/service)
 - Recent news (funding, launches, pivots)
 - Job postings (indicate growth areas)
@@ -151,10 +151,10 @@ Research market position:
 
 ## Output Formats
 
-### Person Intelligence Report
+### Contact Profile
 
 ```markdown
-# Person Intelligence: [Full Name]
+# Contact Profile: [Full Name]
 
 ## Contact Information
 - **Email**: verified@company.com (95% confidence)
@@ -176,7 +176,7 @@ Research market position:
 - MS Computer Science, Stanford University
 - BS Engineering, UC Berkeley
 
-## Social Presence
+## Professional Presence
 - Active on Twitter (12k followers)
 - GitHub contributor (open source projects)
 - Conference speaker (DevCon 2024)
@@ -188,10 +188,10 @@ Research market position:
 - Previously evaluated vendors (+2)
 ```
 
-### Company Intelligence Report
+### Company Profile
 
 ```markdown
-# Company Intelligence: [Company Name]
+# Company Profile: [Company Name]
 
 ## Overview
 - **Industry**: Enterprise Software (SIC: 7372)
@@ -233,6 +233,91 @@ Research market position:
 - Competitor B (similar size, SMB focus)
 - Competitor C (emerging, AI-native)
 ```
+
+## ICP Scoring
+
+When an ICP configuration exists (`.prospector/icp.json`, created via `/set-icp`), apply scoring to all research results.
+
+### Formula
+```
+ICP Score = (company_fit * 0.6) + (contact_fit * 0.4)
+```
+
+### Company Fit (0-100)
+- Industry match: Primary = 100, Secondary = 75, Adjacent = 40
+- Size match: Within range = 100, Within 2x = 60, Outside = 20
+- Tech stack: (matched / total indicators) * 100
+
+### Contact Fit (0-100)
+- Title match: Exact P1 = 100, Exact P2-3 = 85, Partial = 60, Related = 40
+- Seniority: Exact = 100, One level off = 70, Two+ = 20
+
+### Match Levels
+- **Strong** (80+): Prioritize outreach
+- **Good** (60-79): Include in campaigns
+- **Moderate** (40-59): Consider if intent signals are strong
+- **Poor** (<40): Deprioritize
+
+See `references/icp-methodology.md` for detailed scoring rubrics.
+
+## Buying Intent Signals
+
+When researching companies, check for these 5 signal types:
+
+1. **Hiring signals** (30% weight) — Job postings suggesting need for your product
+2. **Funding signals** (25% weight) — Recent capital raise = spending budget
+3. **Leadership changes** (20% weight) — New exec = new priorities, 90-day buying window
+4. **Tech stack changes** (15% weight) — Migrations or evaluations underway
+5. **Competitor dissatisfaction** (10% weight) — Negative reviews, switching mentions
+
+### Intent Score (0-100)
+```
+Intent = (hiring * 0.30) + (funding * 0.25) + (leadership * 0.20) + (tech * 0.15) + (dissatisfaction * 0.10)
+```
+
+Apply recency multiplier: 30 days = 1.0x, 90 days = 0.8x, 180 days = 0.6x, 365 days = 0.4x
+
+### Classification
+- **HOT** (80+): Immediate outreach
+- **WARM** (60-79): Active campaign
+- **NURTURE** (40-59): Check back in 30 days
+- **NOT READY** (<40): Low priority
+
+See `references/intent-signals.md` for detailed search queries and scoring rubrics.
+
+## Priority Timing
+
+Combines ICP fit and buying intent into a single priority score.
+
+### Formula
+```
+Timing Score = (ICP * 0.4) + (Intent * 0.6)
+```
+
+### ICP Gating
+If ICP Score < 50, Timing is capped at NURTURE regardless of Intent. This prevents pursuing poor-fit prospects even when intent signals are strong.
+
+### Priority Levels
+| Timing Score | Level | Action | Timeline |
+|-------------|-------|--------|----------|
+| 80-100 | Immediate | Personalized outreach referencing top signal | Today |
+| 60-79 | High | Add to active campaign sequence | This week |
+| 40-59 | Medium | Nurture sequence, monitor for new signals | This month |
+| 0-39 | Low | Park and re-check in 90 days | Next quarter |
+
+### In Batch Reports
+When processing batches, leads are grouped by timing priority and sorted within each group. The summary shows the distribution across priority buckets and the top signal for each lead.
+
+## Competitive Displacement
+
+When analyzing companies, assess competitive displacement opportunities:
+
+1. **Vendor detection**: Map current tech stack from job postings, BuiltWith, blog mentions
+2. **Dissatisfaction signals**: Check G2/Capterra reviews, community complaints, switching discussions
+3. **Switching triggers**: Pricing changes, feature gaps, support issues, scale limitations
+4. **Talking points**: Generate displacement arguments based on detected pain points
+
+Competitive analysis is included briefly in `/research-company` and available in full via `/check-competitors`.
 
 ## API Integration Patterns
 
@@ -310,10 +395,10 @@ GET https://serpapi.com/search
 
 For detailed techniques and patterns:
 - **`references/data-sources.md`** - Complete API documentation and rate limits
-- **`references/scraping-patterns.md`** - Web scraping techniques and selectors
+- **`references/research-patterns.md`** - Web research techniques and data extraction patterns
 
 ### Scripts
 
 Utility scripts in `$CLAUDE_PLUGIN_ROOT/scripts/`:
-- **`format-report.py`** - Format intelligence into markdown/JSON/CSV
+- **`format-report.py`** - Format profiles into markdown/JSON/CSV
 - **`export-leads.py`** - Export batch results to various formats

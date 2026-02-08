@@ -1,6 +1,9 @@
 # Local settings (contains API keys)
 .claude/*.local.md
 
+# Local ICP configuration
+.prospector/
+
 # Node modules if any scripts use them
 node_modules/
 
