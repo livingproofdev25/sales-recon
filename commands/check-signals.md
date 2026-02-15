@@ -1,40 +1,40 @@
 ---
 name: check-signals
-description: Detect buying intent signals for a company
+description: Detect buying intent signals for a company — hiring, funding, leadership, tech changes, competitor dissatisfaction
 argument-hint: "Company Name" [your-product-category]
-allowed-tools: Read, Write, Grep, Glob, Bash, WebSearch, WebFetch, Task
+allowed-tools: Read, Bash, WebSearch, WebFetch
 ---
 
 Detect buying intent signals for: $ARGUMENTS
 
-Use the Prospect Research skill and intent-signals reference for methodology.
+Use the Lead Intelligence skill and signal-weights.md reference for methodology.
 
-## Signal Detection Process
+## Process
 
 ### Step 1: Parse Input
 
 Extract from "$ARGUMENTS":
-- **Company name**: The target company
-- **Product category** (optional): Your product type for relevance filtering
+- **Company name**: The target company (required)
+- **Product category** (optional): Your product type for relevance filtering (e.g., "CRM", "cloud infrastructure", "marketing automation")
 
 ### Step 2: Detect Signals Across 5 Categories
 
-Run parallel web searches for each signal type:
+Run signal detection searches using the scripts. Evaluate each signal 0-100.
 
 #### Signal 1: Hiring Signals (30% weight)
 
-Search queries:
-- "[Company] hiring [product-category-related roles]"
-- "[Company] careers site:linkedin.com"
-- "[Company] job openings"
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/serp-api.sh jobs "<company>"
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/serp-api.sh search "<company> hiring <product-category-related roles>" --time m
+```
 
 Look for:
-- Job postings that suggest need for your product category
-- Roles that indicate building a team your product serves
+- Job postings suggesting need for your product category
+- Roles indicating team build-out your product serves
 - Technical requirements mentioning technologies you integrate with
 - Headcount growth in relevant departments
 
-Score 0-100:
+Score:
 - 80+: Multiple relevant roles posted recently
 - 60-79: Some relevant hiring activity
 - 40-59: General hiring, not specifically relevant
@@ -42,11 +42,10 @@ Score 0-100:
 
 #### Signal 2: Funding Signals (25% weight)
 
-Search queries:
-- "[Company] funding round"
-- "[Company] series [A/B/C/D]"
-- "[Company] raises"
-- "[Company] investment Crunchbase"
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/serp-api.sh news "<company> funding" --num 5
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/serp-api.sh search "<company> series raises investment crunchbase"
+```
 
 Look for:
 - Recent funding rounds (last 6 months = strongest signal)
@@ -54,7 +53,7 @@ Look for:
 - Stated use of funds (mentions your category?)
 - Investor quality (tier-1 VCs suggest growth trajectory)
 
-Score 0-100:
+Score:
 - 80+: Raised in last 3 months, large round
 - 60-79: Raised in last 6 months
 - 40-59: Raised in last 12 months
@@ -62,19 +61,18 @@ Score 0-100:
 
 #### Signal 3: Leadership Changes (20% weight)
 
-Search queries:
-- "[Company] new [CTO/VP/Head of]"
-- "[Company] appoints"
-- "[Company] leadership changes"
-- "[Company] executive hire"
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/serp-api.sh news "<company> appoints new CTO VP" --num 5
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/serp-api.sh search "<company> leadership changes executive hire"
+```
 
 Look for:
 - New C-level or VP in relevant department (first 90 days = buying window)
-- Departures that suggest strategic shifts
+- Departures suggesting strategic shifts
 - Board additions signaling new direction
-- Reorgs that create new decision-makers
+- Reorgs creating new decision-makers
 
-Score 0-100:
+Score:
 - 80+: New relevant exec in last 90 days
 - 60-79: New exec in last 6 months
 - 40-59: Reorg or board changes
@@ -82,11 +80,10 @@ Score 0-100:
 
 #### Signal 4: Tech Stack Changes (15% weight)
 
-Search queries:
-- "[Company] migrating from [competitor product]"
-- "[Company] evaluating [your category]"
-- "[Company] tech stack" site:stackshare.io OR site:builtwith.com
-- "[Company] engineering blog"
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/serp-api.sh search "<company> migrating evaluating platform" --time m
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/github-api.sh languages <org>
+```
 
 Look for:
 - Mentions of migrating or replacing existing tools
@@ -94,7 +91,7 @@ Look for:
 - Job postings requiring new/different tech
 - Conference talks about tech transitions
 
-Score 0-100:
+Score:
 - 80+: Active migration or evaluation underway
 - 60-79: Signals of tech stack review
 - 40-59: General modernization indicators
@@ -102,11 +99,9 @@ Score 0-100:
 
 #### Signal 5: Competitor Dissatisfaction (10% weight)
 
-Search queries:
-- "[Company] [competitor product] problems"
-- "[Company] switching from [competitor]"
-- site:g2.com "[Company]" OR site:capterra.com "[Company]"
-- "[Company] [competitor] alternative"
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/scripts/serp-api.sh search "<company> <competitor> problems switching alternative"
+```
 
 Look for:
 - Negative reviews of their current vendor
@@ -114,7 +109,7 @@ Look for:
 - RFP signals or vendor evaluation mentions
 - Support escalation patterns
 
-Score 0-100:
+Score:
 - 80+: Active vendor evaluation or public dissatisfaction
 - 60-79: Some negative sentiment about current tool
 - 40-59: Neutral or mixed signals
@@ -122,31 +117,40 @@ Score 0-100:
 
 ### Step 3: Apply Recency Multiplier
 
-Weight signals by freshness:
-```
-Last 30 days:   1.0x (full weight)
-31-90 days:     0.8x
-91-180 days:    0.6x
-181-365 days:   0.4x
-Over 1 year:    0.2x
-```
+Weight signals by freshness per signal-weights.md:
+
+| Signal Age | Multiplier |
+|-----------|------------|
+| Last 30 days | 1.0x |
+| 31-90 days | 0.8x |
+| 91-180 days | 0.6x |
+| 181-365 days | 0.4x |
+| Over 1 year | 0.2x |
 
 ### Step 4: Calculate Intent Score
 
 ```
 Intent Score = (
-  hiring_score    * 0.30 +
-  funding_score   * 0.25 +
-  leadership_score * 0.20 +
+  hiring_score      * 0.30 +
+  funding_score     * 0.25 +
+  leadership_score  * 0.20 +
   tech_change_score * 0.15 +
-  dissatisfaction_score * 0.10
+  dissatisfaction   * 0.10
 ) * recency_multiplier
 ```
 
-### Step 5: Generate Signal Report
+Classify:
+- 80+: HOT
+- 60-79: WARM
+- 40-59: NURTURE
+- <40: NOT READY
+
+### Step 5: Output Report
 
 ```markdown
 # Buying Intent Report: [Company Name]
+
+**Product Category**: [category or "General"] | **Date**: [YYYY-MM-DD]
 
 ## Intent Score: [X]/100 — [HOT/WARM/NURTURE/NOT READY]
 
@@ -174,13 +178,20 @@ Intent Score = (
 - **NOT READY (<40)**: Low priority. Set reminder for 90-day re-check.
 
 ### Signal Freshness
+
 - Most recent signal: [date]
 - Average signal age: [X] days
 - Recency multiplier applied: [X]x
 
 ## Data Sources
-- Web searches: [N] queries
-- News articles: [N] reviewed
-- Job postings: [N] found
-- Review sites: [N] checked
+
+- SerpAPI searches: [N] queries
+- News articles reviewed: [N]
+- Job postings found: [N]
+- GitHub repos checked: [N]
+- Review sites checked: [N]
+
+---
+
+**Next steps**: `/deep-research "[Company]"` | `/craft-outreach "[Contact]"` | `/find-contacts "[Company]"`
 ```

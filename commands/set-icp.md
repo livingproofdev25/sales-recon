@@ -1,132 +1,146 @@
 ---
 name: set-icp
-description: Define your Ideal Customer Profile for automated prospect scoring
-argument-hint: [industry/size/stack]
-allowed-tools: Read, Write, Bash
+description: Define your Ideal Customer Profile — industries, company size, revenue, geography, tech stack, target titles
+argument-hint:
+allowed-tools: Read, Write
 ---
 
-Define or update your Ideal Customer Profile (ICP) for automated scoring.
+Define or update your Ideal Customer Profile (ICP) for automated prospect scoring.
 
-Use the Prospect Research skill's ICP methodology for guidance.
+Use the Lead Intelligence skill and icp-framework.md reference for methodology.
 
-## ICP Builder Process
+## Process
 
 ### Step 1: Check Existing Configuration
 
-Check if `.prospector/icp.json` exists in the current project:
-- If found, display the current ICP configuration and ask if the user wants to update it
-- If not found, start the interactive builder
+Check if `~/.claude/sales-recon.local.md` exists and contains an ICP configuration.
+
+Read the file and look for the `default_icp` section in the YAML frontmatter.
+
+If an ICP already exists, display the current configuration and ask the user:
+- "You have an existing ICP configured. Would you like to **update** specific fields, or **replace** the entire ICP?"
+
+If no file exists or no ICP is configured, proceed to Step 2.
 
 ### Step 2: Interactive ICP Builder
 
-Guide the user through defining their ideal customer. If arguments were provided ("$ARGUMENTS"), use them as starting context. Otherwise, ask about each dimension:
+Walk the user through each ICP dimension. If "$ARGUMENTS" contains any initial context, use it as a starting point.
 
-**Company Fit Dimensions (60% of total ICP score):**
+Ask about each dimension one at a time:
 
-1. **Target Industries** (weight: 25%)
-   - Ask: "What industries are your best customers in?"
-   - Examples: SaaS, FinTech, Healthcare, E-commerce, Manufacturing
-   - Support multiple selections with priority ranking
+**Dimension 1: Target Industries**
+- Ask: "What industries are your best customers in? List your top 2-5."
+- Examples: SaaS, FinTech, Healthcare, E-commerce, Manufacturing, Construction, Real Estate, Professional Services
+- Store as priority-ordered list (first = primary)
 
-2. **Company Size** (weight: 20%)
-   - Ask: "What's your ideal company size range?"
-   - Ranges: 1-10, 11-50, 51-200, 201-1000, 1001-5000, 5000+
-   - Support min-max range
+**Dimension 2: Company Size Range**
+- Ask: "What's your ideal company size range (by employee count)?"
+- Suggest ranges: 1-10, 11-50, 51-200, 201-1000, 1001-5000, 5000+
+- Store as min_employees and max_employees
 
-3. **Tech Stack Indicators** (weight: 15%)
-   - Ask: "What technologies indicate a good fit?"
-   - Examples: AWS, Kubernetes, React, Salesforce, Snowflake
-   - These will be matched against job postings and BuiltWith data
+**Dimension 3: Revenue Range**
+- Ask: "What annual revenue range are you targeting?"
+- Suggest ranges: <$1M, $1-10M, $10-50M, $50-100M, $100M-1B, $1B+
+- Store as min_revenue and max_revenue strings
 
-**Contact Fit Dimensions (40% of total ICP score):**
+**Dimension 4: Target Geography**
+- Ask: "What locations/regions are you targeting?"
+- Examples: "Austin TX", "Texas", "US Southwest", "United States"
+- Support multiple selections
 
-4. **Target Titles/Roles** (weight: 25%)
-   - Ask: "What titles do your buyers typically have?"
-   - Examples: VP Engineering, CTO, Head of DevOps, Director of IT
-   - Support multiple with priority
+**Dimension 5: Target Titles (Priority Order)**
+- Ask: "What job titles do your buyers typically have? List in priority order."
+- Examples: VP Engineering, CTO, Head of DevOps, Director of IT, Owner, General Manager
+- Store as priority 1, 2, 3 list
 
-5. **Seniority Level** (weight: 15%)
-   - Ask: "What seniority level is your primary buyer?"
-   - Options: C-level, VP, Director, Manager, Individual Contributor
+**Dimension 6: Target Departments**
+- Ask: "What departments are your buyers in?"
+- Examples: Engineering, Sales, Marketing, Operations, Finance, Executive, IT
+- Store as list
 
-### Step 3: Set Scoring Weights
+**Dimension 7: Tech Stack Indicators (optional)**
+- Ask: "Any specific technologies that indicate a good fit? (optional)"
+- Examples: AWS, Kubernetes, Salesforce, React, Python
+- Store as list (can be empty)
 
-Present the default weights and allow customization:
+**Dimension 8: Pain Points / Use Cases (optional)**
+- Ask: "What pain points or use cases does your product solve? (optional)"
+- Examples: "scaling engineering teams", "reducing churn", "automating outreach"
+- Store as list (can be empty)
 
+### Step 3: Write Configuration
+
+Write the ICP to `~/.claude/sales-recon.local.md`. If the file already exists, update only the `default_icp` section in the YAML frontmatter while preserving other settings (API keys, output_format, etc.).
+
+If the file does not exist, create it with the full template:
+
+```yaml
+---
+hunter_api_key: ""
+apollo_api_key: ""
+serp_api_key: ""
+google_places_api_key: ""
+rentcast_api_key: ""
+default_icp:
+  industries:
+    - "[Primary industry]"
+    - "[Secondary industry]"
+  min_employees: [N]
+  max_employees: [N]
+  min_revenue: "[range]"
+  max_revenue: "[range]"
+  geo:
+    - "[location 1]"
+    - "[location 2]"
+  target_titles:
+    - "[Priority 1 title]"
+    - "[Priority 2 title]"
+    - "[Priority 3 title]"
+  target_departments:
+    - "[dept 1]"
+    - "[dept 2]"
+  tech_stack:
+    - "[tech 1]"
+    - "[tech 2]"
+  pain_points:
+    - "[pain point 1]"
+    - "[pain point 2]"
+output_format: "markdown"
+---
+# Sales-Recon Settings
+This file stores your sales-recon plugin configuration.
+API keys are stored locally and never committed to git.
 ```
-Company Fit (60% of total):
-  - Industry match:  25%
-  - Size match:      20%
-  - Tech stack match: 15%
 
-Contact Fit (40% of total):
-  - Title match:     25%
-  - Seniority match: 15%
-```
+### Step 4: Confirm and Display
 
-Ask: "Would you like to adjust these weights, or use the defaults?"
-
-### Step 4: Save Configuration
-
-Save to `.prospector/icp.json`:
-
-```json
-{
-  "version": "1.0",
-  "created": "2026-02-08",
-  "updated": "2026-02-08",
-  "company_fit": {
-    "weight": 0.6,
-    "industries": {
-      "weight": 0.25,
-      "targets": ["SaaS", "FinTech"],
-      "priority": {"SaaS": 1, "FinTech": 2}
-    },
-    "size": {
-      "weight": 0.20,
-      "min_employees": 50,
-      "max_employees": 1000
-    },
-    "tech_stack": {
-      "weight": 0.15,
-      "indicators": ["AWS", "Kubernetes", "React"]
-    }
-  },
-  "contact_fit": {
-    "weight": 0.4,
-    "titles": {
-      "weight": 0.25,
-      "targets": ["VP Engineering", "CTO", "Head of DevOps"],
-      "priority": {"VP Engineering": 1, "CTO": 2, "Head of DevOps": 3}
-    },
-    "seniority": {
-      "weight": 0.15,
-      "targets": ["VP", "C-level", "Director"]
-    }
-  }
-}
-```
-
-### Step 5: Confirm and Display
-
-Show the configured ICP with scoring examples:
+Show the saved ICP with scoring examples:
 
 ```markdown
-## Your Ideal Customer Profile
+## Your Ideal Customer Profile — Saved
 
-### Company Fit (60%)
-- **Industries**: SaaS (primary), FinTech (secondary)
-- **Size**: 50-1,000 employees
-- **Tech Stack**: AWS, Kubernetes, React
+### Company Fit (60% of ICP score)
+- **Industries**: [list with primary/secondary labels]
+- **Size**: [min]-[max] employees
+- **Revenue**: [min]-[max]
+- **Geography**: [list]
 
-### Contact Fit (40%)
-- **Titles**: VP Engineering, CTO, Head of DevOps
-- **Seniority**: VP, C-level, Director
+### Contact Fit (40% of ICP score)
+- **Titles**: [priority-ordered list]
+- **Departments**: [list]
+- **Seniority**: [inferred from titles]
+
+### Tech Stack Indicators
+- [list or "None specified"]
+
+### Pain Points
+- [list or "None specified"]
 
 ### Scoring Examples
-- SaaS company, 200 employees, uses AWS, VP Engineering → **ICP: 95 (Strong)**
-- FinTech company, 5000 employees, uses Azure, Director → **ICP: 62 (Good)**
-- Manufacturing, 50 employees, unknown stack, Manager → **ICP: 35 (Poor)**
+- [Primary industry], [mid-range size], [target title] -> **ICP: ~90 (Strong)**
+- [Secondary industry], [edge-of-range size], [related title] -> **ICP: ~65 (Good)**
+- [Non-target industry], [outside range], [unrelated title] -> **ICP: ~25 (Poor)**
 
-Your ICP is saved. All `/research-contact`, `/research-company`, and `/enrich-batch` commands will now include ICP scores automatically.
+Your ICP is saved to `~/.claude/sales-recon.local.md`.
+All `/prospect`, `/deep-research`, `/score-icp`, and `/enrich-batch` commands will now include ICP scores automatically.
 ```
