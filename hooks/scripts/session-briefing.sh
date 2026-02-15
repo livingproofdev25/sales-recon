@@ -1,38 +1,40 @@
 #!/bin/bash
-# Session Briefing Hook for Prospector
-# Runs at session start to show available research commands
-
 set -euo pipefail
 
-# Check for required API keys and provide setup guidance
+SETTINGS_FILE="${HOME}/.claude/sales-recon.local.md"
 missing_keys=()
+configured_keys=()
 
-if [ -z "${HUNTER_API_KEY:-}" ]; then
-  missing_keys+=("HUNTER_API_KEY")
-fi
+check_key() {
+  local key_name="$1"
+  local env_name="$2"
+  if [ -n "${!env_name:-}" ]; then
+    configured_keys+=("$key_name")
+  elif [ -f "$SETTINGS_FILE" ] && grep -qP "${key_name}:\s*\S+" "$SETTINGS_FILE" 2>/dev/null; then
+    configured_keys+=("$key_name")
+  else
+    missing_keys+=("$key_name")
+  fi
+}
 
-if [ -z "${GOOGLE_MAPS_KEY:-}" ]; then
-  missing_keys+=("GOOGLE_MAPS_KEY")
-fi
+check_key "hunter_api_key" "HUNTER_API_KEY"
+check_key "apollo_api_key" "APOLLO_API_KEY"
+check_key "serp_api_key" "SERPAPI_KEY"
+check_key "google_places_api_key" "GOOGLE_PLACES_API_KEY"
+check_key "rentcast_api_key" "RENTCAST_API_KEY"
 
-if [ -z "${SERPAPI_KEY:-}" ]; then
-  missing_keys+=("SERPAPI_KEY")
-fi
-
-# Build the briefing message
-briefing="Prospector plugin loaded. "
+total=$((${#configured_keys[@]} + ${#missing_keys[@]}))
+briefing="Sales-Recon v3 loaded. "
 
 if [ ${#missing_keys[@]} -gt 0 ]; then
-  briefing+="Missing API keys: ${missing_keys[*]}. "
-  briefing+="Set these environment variables for full functionality. "
-else
-  briefing+="All API keys configured. "
+  briefing+="Missing API keys: ${missing_keys[*]}. Run /lead-settings to configure. "
 fi
 
-briefing+="Commands: /research-contact, /research-company, /enrich-batch, /export-leads, /set-icp, /check-signals, /check-competitors, /craft-outreach. "
-briefing+="Or use natural language: 'research [name]', 'look up [company]', 'check signals for [company]'."
+briefing+="${#configured_keys[@]}/${total} APIs configured. "
+briefing+="B2B: /prospect, /deep-research, /find-contacts, /check-signals, /check-financials, /score-icp, /set-icp. "
+briefing+="Residential: /find-permits, /property-lookup, /homeowner-leads. "
+briefing+="Shared: /enrich-batch, /export-leads, /craft-outreach, /lead-settings."
 
-# Output as JSON for Claude
 cat << EOF
 {
   "continue": true,
