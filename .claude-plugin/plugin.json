@@ -1,7 +1,7 @@
 {
-  "name": "prospector",
-  "version": "2.0.0",
-  "description": "B2B sales intelligence and buying intent platform. Research contacts and companies, detect buying signals, score ICP fit, analyze competitive displacement, and generate personalized outreach — all from multiple data sources including Hunter.io, Google Maps, SerpAPI, and web research.",
+  "name": "sales-recon",
+  "version": "3.0.0",
+  "description": "Comprehensive lead intelligence platform. Research companies, find decision makers with emails and phones, detect buying signals, score ICP fit, analyze financials and funding, pull building permits, enrich property data, and generate personalized outreach — powered by Hunter.io, Apollo.io, SerpAPI, Google Places, GitHub, SEC EDGAR, Socrata, and RentCast.",
   "author": {
     "name": "xai3x-automate",
     "email": "dev@xai3x.com"
@@ -14,7 +14,13 @@
     "business-intelligence",
     "prospecting",
     "data-enrichment",
-    "outreach"
+    "outreach",
+    "residential-leads",
+    "building-permits",
+    "property-data",
+    "decision-makers",
+    "company-research",
+    "financial-intelligence"
   ],
   "license": "MIT"
 }

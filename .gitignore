@@ -1,24 +1,4 @@
-# Local settings (contains API keys)
 .claude/*.local.md
-
-# Local ICP configuration
-.prospector/
-
-# Node modules if any scripts use them
-node_modules/
-
-# Python cache
-__pycache__/
-*.pyc
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-
-# Temporary files
-*.tmp
+.env
 *.log
+node_modules/
